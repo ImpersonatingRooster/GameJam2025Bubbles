@@ -1,4 +1,5 @@
 extends CharacterBody2D
+signal hit
 
 @export var speed = 400 # How fast the player will move (pixels/sec).
 var screen_size # Size of the game window.
@@ -25,18 +26,13 @@ func _physics_process(delta):
 		$AnimatedSprite2D.stop()
 		
 	self.velocity = velocity
-	move_and_slide()
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-	##var velocity = Vector2.ZERO # The player's movement vector.
-	#if Input.is_action_pressed("move_right"):
-		#velocity.x = 1 * speed
-	#if Input.is_action_pressed("move_left"):
-		#velocity.x = -1 * speed
-	#if Input.is_action_pressed("move_down"):
-		#velocity.y = 1 * speed
-	#if Input.is_action_pressed("move_up"):
-		#velocity.y = -1 * speed
+	var collision = move_and_slide()
 	
+	# Check for collision with the goal
+	if collision:
+		for i in range(get_slide_collision_count()):
+			var collision_info = get_slide_collision(i)
+			var collider = collision_info.get_collider()
+			
+			if collider.is_in_group("goal"):
+				emit_signal("hit")
